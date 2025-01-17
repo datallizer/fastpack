@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+label {
+  margin-left: 12px;
+}
+
+/* Margen para el elemento "Show entries" */
+.dataTables_length {
+  margin-bottom: 18px !important;
+}
+
+/* Margen para el elemento "Search" */
+.dataTables_filter {
+  margin-bottom: 18px !important;
+}
+
+.card-header {
+  padding-top: 10px !important;
+  background-color: #222222 !important;
+  color: #ffffff !important;
+}
+
+.dataTable {
+  border-top: 1px solid #c7c7c7 !important;
+}
+
+.img-card-container pre {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+pre {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.img-card-container img {
+  width: 100%;
+  object-fit: cover;
+  height: 240px;
+}
+
+.product-item h5 {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.category_item {
+  color: #000000;
+  font-size: 12px !important;
+}
+
+.category_item {
+  text-decoration: none;
+  background-color: #d4d4d4;
+  padding: 3px 8px;
+  color: #1f1f1f;
+  border-radius: 5px;
+}
+
+.product-item {
+  transition: all .4s;
+}
+
+
+.slick-dots {
+  position: absolute;
+  bottom: -45px;
+  display: block;
+  width: 100%;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 5px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.slick-dots li button {
+  display: none;
+
+}
+
+.slick-dots li:before {
+  top: 1px;
+  transition: all 0.5s;
+  content: "";
+  width: 4px;
+  height: 4px;
+  background-color: #e0e0e0;
+  position: absolute;
+  border-radius: 55px;
+}
+
+.slick-dots li.slick-active:before {
+  top: 0;
+  width: 6px;
+  height: 6px;
+  margin-left: -2px;
+  background-color: #8a8a8a;
+}
+
+.slick-prev {
+  left: -4%;
+  transform: rotate(180deg);
+}
+
+.slick-next {
+  right: -4%;
+  margin-left: 15px;
+}
+
+.slick-arrow {
+  top: 42%;
+  height: 26px;
+  width: 14px;
+  position: absolute;
+  font-size: 0;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  background-image: url(https://tarkikromanski.github.io/files/arrow-slider.png);
+  background-repeat: no-repeat;
+  filter: invert(30%);
+}
+
+.slickc {
+  color: #ffffff;
+  margin: 0px 5px;
+}
+
+.slickc img {
+  height: 110px !important;
+  width: 100%;
+  object-fit: cover;
+}
+
+.fichaTec {
+  width: 200px;
+  display: block;
+}
+
+@media screen and (max-width: 1000px) {
+  .fichaTec {
+    width: 250px;
+    display: block;
+  }
+
+  .card-contain {
+    background-color: #f5f5f5;
+    z-index: 999;
+  }
+}

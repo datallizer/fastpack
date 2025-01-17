@@ -1,0 +1,90 @@
+<?php
+require 'dbcon.php';
+// Verificar si se recibieron los IDs seleccionados
+if (isset($_POST['generar'])) {
+
+    // Conexión a la base de datos (asumo que $con ya está definido)
+    $query = "SELECT * FROM productos";
+    $result = mysqli_query($con, $query);
+
+    // Verificar si se obtuvieron resultados
+    if ($result && mysqli_num_rows($result) > 0) {
+        echo '
+           <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container-fluid g-0">
+        <div class="row justify-content-center g-0">
+            <div class="col-12">
+                <img style="width: 100%;" src="images/pdfcintillotop.jpg" alt=""></div>
+            <div class="col-10">
+                <div class="card mb-3">
+                    <div class="row g-0">';
+
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        echo '<div class="col-md-4 mt-3">
+                                <img style="width: 100%; height: 450px; object-fit: cover;" src="data:image/jpeg;base64,' . base64_encode($row['medio']) . '" class="img-fluid rounded-start" alt="...">
+                              </div>
+                              <div class="col-md-8">
+                                <div class="card-body">
+                                  <h5 class="card-title">' . $row['titulo'] . '</h5>
+                                  <p class="card-text">' . $row['subtitulo'] . '</p>
+                                  <p class="card-text">' . $row['detalles'] . '</p>
+                                  <p class="card-text"><small class="text-body-secondary">Categoría: ' . $row['categoria'] . '</small></p>
+                                  <p class="card-text"><small class="text-body-secondary">Industria: ' . $row['industria'] . '</small></p>
+                                </div>
+                              </div>';
+                    }
+                    
+        echo '            </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+';
+
+        echo "
+                <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js' integrity='sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2' crossorigin='anonymous'></script>
+                <script src='https://code.jquery.com/jquery-3.6.4.min.js'></script>
+                <script src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'></script>
+                <script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js'></script>
+                <script>
+            html2canvas(document.body).then(function(canvas) {
+                var imgData = canvas.toDataURL('image/png');
+                window.jsPDF = window.jspdf.jsPDF;
+                var pdf = new jsPDF('p', 'pt', 'letter'); 
+
+                var pdfWidth = pdf.internal.pageSize.getWidth();
+                var pdfHeight = pdf.internal.pageSize.getHeight();
+
+                var imgWidth = pdfWidth;
+                var imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                if (imgHeight > pdfHeight) {
+                    imgWidth = (canvas.width * pdfHeight) / canvas.height;
+                    imgHeight = pdfHeight;
+                }
+
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save('CatalogoProductosFastpack.pdf');
+
+                // Redireccionar al usuario a bom.php después de descargar el PDF
+                setTimeout(function() {
+                    window.location.href = 'index.php';
+                }, 1000); // Redirecciona después de 1 segundo (1000 milisegundos)
+            });
+        </script>
+            </body>
+            
+            </html>";
+    }
+}
+?>
