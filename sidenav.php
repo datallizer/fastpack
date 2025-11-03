@@ -45,8 +45,12 @@ $username = $_SESSION['username'];
                             </nav>
                         </div>
                         <a class="nav-link" href="misvideos.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                            <div class="sb-nav-link-icon"><i class="bi bi-play-btn-fill"></i></div>
                             Videos
+                        </a>
+                        <a class="nav-link" href="miscatalogos.php">
+                            <div class="sb-nav-link-icon"><i class="bi bi-journal-arrow-down"></i></div>
+                            Catálogos
                         </a>
                         <div class="sb-sidenav-menu-heading">Panel de control</div>
                         <a class="nav-link" href="categorias.php">

@@ -101,6 +101,15 @@ if (!empty($message)) {
                             </div>
                         </a>
                     </div>
+
+                    <div class="col-md-3 text-center mt-3">
+                        <a href="miscatalogos.php" style="color:#171717;text-decoration:none;">
+                            <div style="background-color: #e7e7e7;font-size:25px;" class="p-5">
+                            <i class="bi bi-journal-arrow-down"></i>
+                                <p>Catálogos</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

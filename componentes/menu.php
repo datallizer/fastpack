@@ -25,7 +25,7 @@
           <a class="nav-item nav-link" href="https://fastpack.mx/beneficios">BENEFICIOS</a>
           <a class="nav-item nav-link" href="https://fastpack.mx/#portfolio">INDUSTRIAS</a>
           <a class="nav-item nav-link" href="https://fastpack.mx/#contact">CONTACTO</a>
-          <a class="nav-item nav-link" href="videos.php">Experiencias</a>
+          <a class="nav-item nav-link" href="catalogosyexperiencias.php">CATÁLOGOS Y EXPERIENCIAS</a>
         </div>
       </div>
     </div>

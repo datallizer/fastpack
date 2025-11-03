@@ -83,7 +83,7 @@ if (isset($_GET['id'])) {
                                     while ($row = mysqli_fetch_assoc($result_medios)) {
                                         $medios[] = $row;
                                     }
-
+                                    $total_medios = count($medios);
                                     foreach ($medios as $medio) {
                                         $ruta_medio = $medio['medio'];
                                         $extension = strtolower(pathinfo($ruta_medio, PATHINFO_EXTENSION));
@@ -106,10 +106,12 @@ if (isset($_GET['id'])) {
                     </video>
                   </a>";
                                         } else {
-                                            // Si no es video, se muestra como imagen
-                                            echo "<a href='$ruta_medio' data-fslightbox='gallery$registro_id'>
-                    <img src='$ruta_medio' style='width: 100%; height: 200px; object-fit: cover;' alt='...'>
-                  </a>";
+                                            if ($total_medios > 1) {
+                                                // Si no es video, se muestra como imagen
+                                                echo "<a href='$ruta_medio' data-fslightbox='gallery$registro_id'>
+                                            <img src='$ruta_medio' style='width: 100%; height: 200px; object-fit: cover;' alt='...'>
+                                          </a>";
+                                            }
                                         }
 
                                         echo "</div>";
@@ -129,7 +131,7 @@ if (isset($_GET['id'])) {
                     <div class="col-12 col-md-6">
                         <div style="min-height: 260px;">
                             <h2 style="text-transform: uppercase;"><?= $registro['titulo']; ?>
-                                </h2>
+                            </h2>
                             <p style="font-weight: 500;"><?= $registro['subtitulo']; ?></p>
                             <pre style="font-size: 11px;min-height:110px;"><?= $registro['detalles']; ?></pre>
 
@@ -138,20 +140,20 @@ if (isset($_GET['id'])) {
                         </div>
                         <div class="d-flex align-items-center">
                             <!-- Botón de WhatsApp -->
-                            <a style="background-color:#1e375c;color:#fff;" href="https://wa.me/524494251523?text=Hola,%20quiero%20información%20sobre:%0A*Producto:*%20<?= $registro['titulo']; ?>%0A%20<?= $registro['subtitulo']; ?>%0A%20https://tienda.fastpack.mx/productos/verpoducto.php?id=<?= $registro_id; ?>" target="_blank" rel="noopener noreferrer" class="btn w-100 me-2">
+                            <a style="background-color:#1e375c;color:#fff;" href="https://wa.me/524493523433?text=Hola,%20quiero%20información%20sobre:%0A*Producto:*%20<?= $registro['titulo']; ?>%0A%20<?= $registro['subtitulo']; ?>%0A%20https://fastpack.mx/productos/verproducto.php?id=<?= $registro_id; ?>" target="_blank" rel="noopener noreferrer" class="btn w-100 me-2">
                                 <small><i class="bi bi-whatsapp"></i> Preguntar</small>
                             </a>
                             <?php
-                            
-                                // Si se encontró un PDF, mostrar el botón de descarga
-                                if ($pdf_encontrado) {
-                                    echo "<a href='$ruta_pdf' class='btn btn-warning btn-sm fichaTec me-2 p-2' download><i class='bi bi-download'></i> Ficha</a>";
-                                }
-                                ?>
-                            <!-- Botón de Compartir --> 
+
+                            // Si se encontró un PDF, mostrar el botón de descarga
+                            if ($pdf_encontrado) {
+                                echo "<a href='$ruta_pdf' class='btn btn-warning btn-sm fichaTec me-2 p-2' download><i class='bi bi-download'></i> Ficha</a>";
+                            }
+                            ?>
+                            <!-- Botón de Compartir -->
                             <button onclick="copyLink()" style="background-color:#007bff;color:#fff;" class="btn w-10"><small><i class="bi bi-share"></i></small></button>
                         </div>
-                            
+
                     </div>
             <?php
         } else {

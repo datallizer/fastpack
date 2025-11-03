@@ -149,7 +149,7 @@ if (isset($_POST['generar'])) {
             <div class="card" style="border:0px !important;">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img style="width: 100%; height: 370px; object-fit: cover;" src="data:image/jpeg;base64,' . base64_encode($product['medio']) . '" class="img-fluid rounded-start" alt="...">
+                        <img style="width: 100%; height: 370px; object-fit: cover;" src="' . htmlspecialchars($product['medio']) . '" class="img-fluid rounded-start" alt="...">
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">

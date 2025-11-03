@@ -47,12 +47,13 @@ if (isset($_SESSION['username'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/x-icon" href="images/ics.ico">
-    <title>Videos | Fastpack</title>
+    <title>Catálogos | Fastpack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="shortcut icon" href="images/ico.ico" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 
 <body class="sb-nav-fixed">
@@ -64,9 +65,9 @@ if (isset($_SESSION['username'])) {
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 style="color:#fff" class="m-1">VIDEOS
+                                <h4 style="color:#fff" class="m-1">CATÁLOGOS
                                     <button type="button" class="btn btn-primary btn-sm float-end btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                        Nuevo video
+                                        Nuevo catálogo
                                     </button>
                                 </h4>
                             </div>
@@ -82,7 +83,7 @@ if (isset($_SESSION['username'])) {
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $query = "SELECT * FROM videos ORDER BY id DESC";
+                                        $query = "SELECT * FROM catalogos ORDER BY id DESC";
                                         $query_run = mysqli_query($con, $query);
                                         if (mysqli_num_rows($query_run) > 0) {
                                             foreach ($query_run as $registro) {
@@ -93,7 +94,15 @@ if (isset($_SESSION['username'])) {
                                                         <p><?= $registro['id']; ?></p>
                                                     </td>
                                                     <td>
-                                                        <p><?= $registro['nombre']; ?></p>
+                                                        <div class="row">
+                                                            <div class="col-4">
+                                                                <canvas id="pdfCanvas<?= $registro['id']; ?>" style="width: 100px; height: auto;"></canvas>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <p><?= $registro['nombre']; ?></p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     </td>
                                                     <td>
                                                         <p><?= $registro['estatus'] == 1 ? 'Activo' : 'Inactivo'; ?></p>
@@ -110,7 +119,7 @@ if (isset($_SESSION['username'])) {
                                                                         <h5 class="modal-title" id="pdfModalLabel"><?= $registro['nombre']; ?></h5>
                                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                     </div>
-                                                                    <form action="codevideo.php" method="POST">
+                                                                    <form action="codecatalogos.php" method="POST">
                                                                         <div class="modal-body">
                                                                             <input type="hidden" name="id" value="<?= $registro['id']; ?>">
                                                                             <div class="col-12 col-md-12 form-floating mb-3">
@@ -135,16 +144,45 @@ if (isset($_SESSION['username'])) {
                                                             </div>
                                                         </div>
 
-                                                        <form action="codevideo.php" method="POST" class="d-inline">
+                                                        <form action="codecatalogos.php" method="POST" class="d-inline">
                                                             <button type="submit" name="delete" value="<?= $registro['id']; ?>" class="btn btn-danger btn-sm m-1"><i class="bi bi-trash-fill"></i></button>
                                                         </form>
 
                                                     </td>
                                                 </tr>
+
+                                                <script>
+                                                    const pdfPath<?= $registro['id']; ?> = "<?= $registro['path']; ?>"; // Ruta al PDF
+
+                                                    const canvas<?= $registro['id']; ?> = document.getElementById("pdfCanvas<?= $registro['id']; ?>");
+                                                    const context<?= $registro['id']; ?> = canvas<?= $registro['id']; ?>.getContext("2d");
+
+                                                    // Configura PDF.js
+                                                    const loadingTask<?= $registro['id']; ?> = pdfjsLib.getDocument(pdfPath<?= $registro['id']; ?>);
+                                                    loadingTask<?= $registro['id']; ?>.promise.then(function(pdf) {
+                                                        // Carga la primera página
+                                                        pdf.getPage(1).then(function(page) {
+                                                            const viewport = page.getViewport({
+                                                                scale: 0.5
+                                                            }); // Escala para ajustar
+                                                            canvas<?= $registro['id']; ?>.width = viewport.width;
+                                                            canvas<?= $registro['id']; ?>.height = viewport.height;
+
+                                                            // Renderiza la página en el canvas
+                                                            const renderContext = {
+                                                                canvasContext: context<?= $registro['id']; ?>,
+                                                                viewport: viewport
+                                                            };
+                                                            page.render(renderContext);
+                                                        });
+                                                    }).catch(function(error) {
+                                                        console.error("Error al cargar el PDF: ", error);
+                                                    });
+                                                </script>
                                         <?php
                                             }
                                         } else {
-                                            echo "<td colspan='4'><p> No se encontro ningun video </p></td>";
+                                            echo "<td colspan='4'><p> No se encontro ningun pdf</p></td>";
                                         }
                                         ?>
                                     </tbody>
@@ -162,11 +200,11 @@ if (isset($_SESSION['username'])) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">NUEVO VIDEO</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">NUEVO CATÁLOGO</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="codevideo.php" method="POST" enctype="multipart/form-data" class="row">
+                    <form action="codecatalogos.php" method="POST" enctype="multipart/form-data" class="row">
 
                         <div class="col-12 col-md-12 form-floating mb-3">
                             <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre" autocomplete="off" required>
@@ -174,10 +212,9 @@ if (isset($_SESSION['username'])) {
                         </div>
 
                         <div class="mb-3">
-                            <label for="formFile" class="form-label">Selecciona su video</label>
-                            <input class="form-control" type="file" id="formFile" name="video" accept="video/mp4">
+                            <label for="formFile" class="form-label">Selecciona el PDF</label>
+                            <input class="form-control" type="file" id="formFile" name="medio" accept=".pdf">
                         </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
