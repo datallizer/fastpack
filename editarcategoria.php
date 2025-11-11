@@ -1,16 +1,20 @@
 <?php
 session_start();
 require 'dbcon.php';
-$message = isset($_SESSION['message']) ? $_SESSION['message'] : '';
 
-if (!empty($message)) {
+$alert = isset($_SESSION['alert']) ? $_SESSION['alert'] : null;
+
+if (!empty($alert)) {
+    $title = isset($alert['title']) ? json_encode($alert['title']) : '"Notificación"';
+    $message = isset($alert['message']) ? json_encode($alert['message']) : '""';
+    $icon = isset($alert['icon']) ? json_encode($alert['icon']) : '"info"';
+
     echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
-                const message = " . json_encode($message) . ";
                 Swal.fire({
-                    //title: 'NOTIFICACIÓN',
-                    text: message,
-                    icon: 'info',
+                    title: $title,
+                    " . (!empty($alert['message']) ? "text: $message," : "") . "
+                    icon: $icon,
                     confirmButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -19,7 +23,7 @@ if (!empty($message)) {
                 });
             });
         </script>";
-    unset($_SESSION['message']);
+    unset($_SESSION['alert']);
 }
 
 if (isset($_SESSION['username'])) {
@@ -29,13 +33,21 @@ if (isset($_SESSION['username'])) {
     $result = mysqli_query($con, $query);
 
     if (mysqli_num_rows($result) > 0) {
-        // Se puede acceder al contenido
     } else {
-        header('Location: ingresar.php');
+        $_SESSION['alert'] = [
+            'title' => 'USUARIO NO ENCONTRADO',
+            'icon' => 'error'
+        ];
+        header('Location: login.php');
         exit();
     }
 } else {
-    header('Location: ingresar.php');
+    $_SESSION['alert'] = [
+        'message' => 'Para acceder debes iniciar sesión primero',
+        'title' => 'SESIÓN NO INICIADA',
+        'icon' => 'error'
+    ];
+    header('Location: login.php');
     exit();
 }
 ?>

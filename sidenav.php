@@ -28,8 +28,12 @@ $username = $_SESSION['username'];
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
                         </a>
+                        <a class="nav-link" href="configuraciones.php">
+                            <div class="sb-nav-link-icon"><i class="bi bi-gear-wide-connected"></i></div>
+                            Configuraciones
+                        </a>
                         <a class="nav-link" href="usuarios.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <div class="sb-nav-link-icon"><i class="bi bi-person-fill"></i></div>
                             Usuarios
                         </a>
                         <div class="sb-sidenav-menu-heading">Modulos</div>
@@ -42,6 +46,17 @@ $username = $_SESSION['username'];
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="vigentes.php">Vigentes</a>
                                 <a class="nav-link" href="historicos.php">Historico</a>
+                            </nav>
+                        </div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayoutsLinea" aria-expanded="false" aria-controls="collapseLayoutsLinea">
+                            <div class="sb-nav-link-icon"><i class="bi bi-cart"></i></div>
+                            Tienda en línea
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseLayoutsLinea" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="carga-tienda-en-linea.php">Vigentes</a>
+                                <a class="nav-link" href="historicos-venta.php">Historico</a>
                             </nav>
                         </div>
                         <a class="nav-link" href="misvideos.php">
@@ -58,7 +73,7 @@ $username = $_SESSION['username'];
                             Categorías
                         </a>
                         <a class="nav-link" href="industrias.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            <div class="sb-nav-link-icon"><i class="bi bi-building-fill"></i></div>
                             Industrias
                         </a>
                     </div>

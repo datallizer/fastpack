@@ -59,10 +59,9 @@ if (isset($_SESSION['username'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/x-icon" href="images/ics.ico">
-    <title>Industrias | Fastpack</title>
+    <title>Configuraciones | Fastpack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="shortcut icon" href="images/ico.ico" type="image/x-icon">
 </head>
@@ -76,47 +75,67 @@ if (isset($_SESSION['username'])) {
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 style="color:#fff" class="m-1">INDUSTRIAS
-                                    <button type="button" class="btn btn-primary btn-sm float-end btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                        Nueva industria
-                                    </button>
-                                </h4>
+                                <h4 style="color:#fff" class="m-1">CONFIGURACIONES</h4>
                             </div>
                             <div class="card-body" style="overflow-y:scroll;">
                                 <table id="miTabla" class="table table-bordered table-striped" style="width: 100%;">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
-                                            <th>Industrias</th>
-                                            <th>Acción</th>
+                                            <th>Configuracion</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Editar</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $query = "SELECT * FROM industrias ORDER BY id DESC";
+                                        $query = "SELECT * FROM configuraciones ORDER BY id ASC";
                                         $query_run = mysqli_query($con, $query);
                                         if (mysqli_num_rows($query_run) > 0) {
                                             foreach ($query_run as $registro) {
                                         ?>
                                                 <tr>
                                                     <td>
-                                                        <p><?= $registro['id']; ?></p>
+                                                        <p class="mb-0" style="font-weight: 500;"><b><?= $registro['nombre']; ?></b></p>
+                                                        <p><small><?= $registro['detalle']; ?></small></p>
                                                     </td>
                                                     <td>
-                                                        <p><?= $registro['industria']; ?></p>
+                                                        <p class="mb-0" style="font-weight: 500;">
+                                                            <?php
+                                                            if ($registro['id'] === '1') {
+                                                                echo "Monto minimo para envío gratis";
+                                                            } else if ($registro['id'] === '2') {
+                                                                echo "Texto advertencia";
+                                                            } else if ($registro['id'] === '3') {
+                                                                echo "Cliente/a";
+                                                            } else {
+                                                                echo "Error, contacte a soporte";
+                                                            }
+                                                            ?></p>
+                                                        <p><?= $registro['valoruno']; ?></p>
+                                                    </td>
+                                                    <td><p class="mb-0" style="font-weight: 500;">
+                                                            <?php
+                                                            if ($registro['id'] === '1') {
+                                                                echo "Costo de envío";
+                                                            } else if ($registro['id'] === '2') {
+                                                                echo "URL WhatsApp";
+                                                            } else if ($registro['id'] === '3') {
+                                                                echo "Cliente/a";
+                                                            } else {
+                                                                echo "Error, contacte a soporte";
+                                                            }
+                                                            ?></p>
+                                                        <p><?= $registro['valordos']; ?></p>
                                                     </td>
                                                     <td>
-                                                        <a href="editarindustria.php?id=<?= $registro['id']; ?>" class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i></a>
-
-                                                        <form action="codeindustrias.php" method="POST" class="d-inline">
-                                                            <button type="submit" name="delete" value="<?= $registro['id']; ?>" class="btn btn-danger btn-sm m-1"><i class="bi bi-trash-fill"></i></button>
-                                                        </form>
+                                                        <a href="editarconfiguracion.php?id=<?= $registro['id']; ?>" class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i></a>
                                                     </td>
                                                 </tr>
                                         <?php
                                             }
                                         } else {
-                                            echo "<td colspan='3'><p> No se encontro ningun registro</p></td>";
+                                            echo "<td colspan='5'><p> No se encontro ningun usuario </p></td>";
                                         }
                                         ?>
                                     </tbody>
@@ -129,44 +148,9 @@ if (isset($_SESSION['username'])) {
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">NUEVA CATEGORÍA</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="codeindustrias.php" method="POST" class="row">
-                        <div class="col-12 col-md-12 form-floating mb-3">
-                            <input type="text" class="form-control" name="industria" id="industria" placeholder="Categoría" autocomplete="off" required>
-                            <label for="industria">Categoría</label>
-                        </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" name="save">Guardar</button>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/sweetalert2@10'></script>
-    <script>
-        $(document).ready(function() {
-            $('#miTabla').DataTable({
-                "order": [
-                    [0, "desc"]
-                ]
-            });
-        });
-    </script>
-
 </body>
 
 </html>

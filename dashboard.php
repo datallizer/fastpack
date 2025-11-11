@@ -1,17 +1,20 @@
 <?php
 session_start();
 require 'dbcon.php';
-$message = isset($_SESSION['message']) ? $_SESSION['message'] : ''; // Obtener el mensaje de la sesión
 
-if (!empty($message)) {
-    // HTML y JavaScript para mostrar la alerta...
+$alert = isset($_SESSION['alert']) ? $_SESSION['alert'] : null;
+
+if (!empty($alert)) {
+    $title = isset($alert['title']) ? json_encode($alert['title']) : '"Notificación"';
+    $message = isset($alert['message']) ? json_encode($alert['message']) : '""';
+    $icon = isset($alert['icon']) ? json_encode($alert['icon']) : '"info"';
+
     echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
-                const message = " . json_encode($message) . ";
                 Swal.fire({
-                    title: 'NOTIFICACIÓN',
-                    text: message,
-                    icon: 'info',
+                    title: $title,
+                    " . (!empty($alert['message']) ? "text: $message," : "") . "
+                    icon: $icon,
                     confirmButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -20,30 +23,33 @@ if (!empty($message)) {
                 });
             });
         </script>";
-    unset($_SESSION['message']); // Limpiar el mensaje de la sesión
+    unset($_SESSION['alert']);
 }
 
-// //Verificar si existe una sesión activa y los valores de usuario y contraseña están establecidos
-// if (isset($_SESSION['username'])) {
-//     $username = $_SESSION['username'];
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
 
-//     // Consultar la base de datos para verificar si los valores coinciden con algún registro en la tabla de usuarios
-//     $query = "SELECT * FROM user WHERE username = '$username'";
-//     $result = mysqli_query($con, $query);
+    $query = "SELECT * FROM usuarios WHERE username = '$username'";
+    $result = mysqli_query($con, $query);
 
-//     // Si se encuentra un registro coincidente, el usuario está autorizado
-//     if (mysqli_num_rows($result) > 0) {
-//         // El usuario está autorizado, se puede acceder al contenido
-//     } else {
-//         // Redirigir al usuario a una página de inicio de sesión
-//         header('Location: login.php');
-//         exit(); // Finalizar el script después de la redirección
-//     }
-// } else {
-//     // Redirigir al usuario a una página de inicio de sesión si no hay una sesión activa
-//     header('Location: login.php');
-//     exit(); // Finalizar el script después de la redirección
-// }
+    if (mysqli_num_rows($result) > 0) {
+    } else {
+        $_SESSION['alert'] = [
+            'title' => 'USUARIO NO ENCONTRADO',
+            'icon' => 'error'
+        ];
+        header('Location: login.php');
+        exit();
+    }
+} else {
+    $_SESSION['alert'] = [
+        'message' => 'Para acceder debes iniciar sesión primero',
+        'title' => 'SESIÓN NO INICIADA',
+        'icon' => 'error'
+    ];
+    header('Location: login.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +84,7 @@ if (!empty($message)) {
                     <div class="col-md-3 text-center">
                         <a href="vigentes.php" style="color:#171717;text-decoration:none;">
                             <div style="background-color: #e7e7e7;font-size:25px;" class="p-5">
-                            <i class="bi bi-bag-fill"></i>
+                                <i class="bi bi-bag-fill"></i>
                                 <p>Productos</p>
                             </div>
                         </a>
@@ -87,7 +93,7 @@ if (!empty($message)) {
                     <div class="col-md-3 text-center">
                         <a href="categorias.php" style="color:#171717;text-decoration:none;">
                             <div style="background-color: #e7e7e7;font-size:25px;" class="p-5">
-                            <i class="bi bi-card-checklist"></i>
+                                <i class="bi bi-card-checklist"></i>
                                 <p>Categorías</p>
                             </div>
                         </a>
@@ -96,7 +102,7 @@ if (!empty($message)) {
                     <div class="col-md-3 text-center">
                         <a href="industrias.php" style="color:#171717;text-decoration:none;">
                             <div style="background-color: #e7e7e7;font-size:25px;" class="p-5">
-                            <i class="bi bi-building-fill"></i>
+                                <i class="bi bi-building-fill"></i>
                                 <p>Industrias</p>
                             </div>
                         </a>
@@ -105,8 +111,17 @@ if (!empty($message)) {
                     <div class="col-md-3 text-center mt-3">
                         <a href="miscatalogos.php" style="color:#171717;text-decoration:none;">
                             <div style="background-color: #e7e7e7;font-size:25px;" class="p-5">
-                            <i class="bi bi-journal-arrow-down"></i>
+                                <i class="bi bi-journal-arrow-down"></i>
                                 <p>Catálogos</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-3 text-center mt-3">
+                        <a href="carga-tienda-en-linea.php" style="color:#171717;text-decoration:none;">
+                            <div style="background-color: #e7e7e7;font-size:25px;" class="p-5">
+                                <i class="bi bi-cart2"></i>
+                                <p>Tienda en línea</p>
                             </div>
                         </a>
                     </div>

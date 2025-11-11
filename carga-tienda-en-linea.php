@@ -76,7 +76,7 @@ if (isset($_SESSION['username'])) {
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 style="color:#fff" class="m-1">PRODUCTOS ACTIVOS
+                                <h4 style="color:#fff" class="m-1">TIENDA EN LÍNEA <small>(PRODUCTOS ACTIVOS)</small>
                                     <button type="button" class="btn btn-primary btn-sm float-end btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                         Nuevo producto
                                     </button>
@@ -101,9 +101,9 @@ if (isset($_SESSION['username'])) {
                                                     p.subtitulo, 
                                                     GROUP_CONCAT(DISTINCT c.categoria ORDER BY c.categoria ASC SEPARATOR ', ') AS categorias,
                                                     GROUP_CONCAT(DISTINCT i.industria ORDER BY i.industria ASC SEPARATOR ', ') AS industrias
-                                                FROM productos p
-                                                LEFT JOIN categoriasasociadas c ON p.id = c.idproducto
-                                                LEFT JOIN industriaasociada i ON p.id = i.idproducto
+                                                FROM productosventa p
+                                                LEFT JOIN categoriasasociadasventa c ON p.id = c.idproducto
+                                                LEFT JOIN industriaasociadaventa i ON p.id = i.idproducto
                                                 WHERE p.estatus = 1
                                                 GROUP BY p.id
                                                 ORDER BY p.id DESC;
@@ -130,9 +130,9 @@ if (isset($_SESSION['username'])) {
                                                         <p><?= $registro['categorias']; ?></p>
                                                     </td>
                                                     <td>
-                                                        <a href="editarproducto.php?id=<?= $registro['id']; ?>" class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i></a>
+                                                        <a href="editarproductoventa.php?id=<?= $registro['id']; ?>" class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i></a>
 
-                                                        <form action="codeproductos.php" method="POST" class="d-inline">
+                                                        <form action="codeproductosventa.php" method="POST" class="d-inline">
                                                             <button type="submit" name="delete" value="<?= $registro['id']; ?>" class="btn btn-danger btn-sm m-1"><i class="bi bi-trash-fill"></i></button>
                                                         </form>
                                                     </td>
@@ -156,14 +156,14 @@ if (isset($_SESSION['username'])) {
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">NUEVO PRODUCTO</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="codeproductos.php" method="POST" class="row" enctype="multipart/form-data">
+                    <form action="codeproductosventa.php" method="POST" class="row" enctype="multipart/form-data">
                         <div class="col-12 col-md-12 form-floating mb-3">
                             <input type="text" class="form-control" name="titulo" id="titulo" placeholder="Titulo" autocomplete="off" required>
                             <label for="titulo">Título</label>
@@ -179,7 +179,7 @@ if (isset($_SESSION['username'])) {
                             <label for="detalles">Detalles</label>
                         </div>
 
-                        <div class="col-12 mb-3">
+                        <div class="col-6 mb-3">
                             <label for="categoria">Categorías</label>
                             <div id="categoria">
                                 <?php
@@ -199,7 +199,7 @@ if (isset($_SESSION['username'])) {
                             </div>
                         </div>
 
-                        <div class="col-12 mb-3">
+                        <div class="col-6 mb-3">
                             <label for="industria">Industrias</label>
                             <div id="industria">
                                 <?php
@@ -217,6 +217,41 @@ if (isset($_SESSION['username'])) {
                                 }
                                 ?>
                             </div>
+                        </div>
+
+                        <div class="col-12 col-md-2 form-floating mb-3">
+                            <input type="number" class="form-control" name="stock" id="stock" placeholder="Stock" autocomplete="off" required>
+                            <label for="stock">Stock</label>
+                        </div>
+
+                        <div class="col-12 col-md-10 form-floating mb-3">
+                            <input type="text" class="form-control" name="sku" id="sku" placeholder="SKU" autocomplete="off" required>
+                            <label for="sku">SKU</label>
+                        </div>
+
+                        <div class="col-12 col-md-3 form-floating mb-3">
+                            <input type="number" class="form-control" name="stockminimo" id="stockminimo" placeholder="Stock minimo" autocomplete="off" required>
+                            <label for="stockminimo">Stock minimo</label>
+                        </div>
+
+                        <div class="col-12 col-md-3 form-floating mb-3">
+                            <input type="text" class="form-control" name="preciounitario" id="preciounitario" placeholder="Precio unitario" autocomplete="off" required>
+                            <label for="preciounitario">Precio unitario</label>
+                        </div>
+
+                        <div class="col-12 col-md-6 form-floating mb-3">
+                            <input type="text" class="form-control" name="preciomayoreo" id="preciomayoreo" placeholder="Precio mayoreo" autocomplete="off" required>
+                            <label for="preciomayoreo">Precio mayoreo</label>
+                        </div>
+
+                        <div class="col-12 col-md-4 form-floating mb-3">
+                            <input type="number" class="form-control" name="cantidadmayoreo" id="cantidadmayoreo" placeholder="Cantidad mayoreo" autocomplete="off" required>
+                            <label for="cantidadmayoreo">Cantidad minima para mayoreo</label>
+                        </div>
+
+                        <div class="col-12 col-md-8 form-floating mb-3">
+                            <input type="text" class="form-control" name="descuento" id="descuento" placeholder="Descuento" autocomplete="off" required>
+                            <label for="descuento">Descuento</label>
                         </div>
 
                         <div class="col-12 mb-3">
@@ -244,6 +279,37 @@ if (isset($_SESSION['username'])) {
                     [0, "desc"]
                 ],
                 "pageLength": 25
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Campos que solo aceptan enteros
+            const soloEnteros = ["stock", "stockminimo", "cantidadmayoreo"];
+
+            // Campos que aceptan decimales (ej. 1000.00)
+            const soloDecimales = ["descuento", "precio", "preciomayoreo", "preciounitario"];
+
+            // Validación para números enteros
+            soloEnteros.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener("input", function() {
+                        this.value = this.value.replace(/[^0-9]/g, ''); // solo dígitos
+                    });
+                }
+            });
+
+            // Validación para decimales
+            soloDecimales.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener("input", function() {
+                        // Permite solo números y un punto decimal (ej. 1000.00)
+                        this.value = this.value
+                            .replace(/[^0-9.]/g, '') // quita letras y símbolos
+                            .replace(/(\..*)\./g, '$1'); // evita más de un punto
+                    });
+                }
             });
         });
     </script>

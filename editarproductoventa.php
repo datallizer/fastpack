@@ -52,25 +52,25 @@ if (isset($_SESSION['username'])) {
 }
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Location: vigentes.php');
+    header('Location: carga-tienda-en-linea.php');
     exit();
 }
 
 $idproducto = (int)$_GET['id'];
 
-$query = "SELECT p.titulo, p.estatus, p.subtitulo, p.detalles, 
+$query = "SELECT p.titulo, p.estatus, p.subtitulo, p.detalles, p.stock, p.sku, p.stockminimo, p.preciounitario, p.preciomayoreo, p.cantidadmayoreo, p.descuento,
                  GROUP_CONCAT(DISTINCT c.categoria SEPARATOR ', ') AS categorias,
                  GROUP_CONCAT(DISTINCT i.industria SEPARATOR ', ') AS industrias
-          FROM productos p
-          LEFT JOIN categoriasasociadas c ON p.id = c.idproducto
-          LEFT JOIN industriaasociada i ON p.id = i.idproducto
+          FROM productosventa p
+          LEFT JOIN categoriasasociadasventa c ON p.id = c.idproducto
+          LEFT JOIN industriaasociadaventa i ON p.id = i.idproducto
           WHERE p.id = $idproducto
           GROUP BY p.id";
 $result = mysqli_query($con, $query);
 $product = mysqli_fetch_assoc($result);
 
 if (!$product) {
-    header('Location: vigentes.php');
+    header('Location: carga-tienda-en-linea.php');
     exit();
 }
 ?>
@@ -85,7 +85,7 @@ if (!$product) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="shortcut icon" href="images/ico.ico" type="image/x-icon">
-    <title>Editar Producto | Fastpack</title>
+    <title>Editar Producto Carrito de Compras | Fastpack</title>
 </head>
 
 <body class="sb-nav-fixed">
@@ -97,11 +97,11 @@ if (!$product) {
                     <div class="col-md-12">
                         <div class="card p-3">
                             <div class="card-header">
-                                <h2 style="text-transform: uppercase;">Editar Producto <?php echo htmlspecialchars($product['titulo']); ?>
-                                    <a href="vigentes.php" class="btn btn-primary btn-sm float-end">Regresar</a>
+                                <h2 style="text-transform: uppercase;">Editar Producto "<?php echo htmlspecialchars($product['titulo']); ?>"
+                                    <a href="carga-tienda-en-linea.php" class="btn btn-primary btn-sm float-end">Regresar</a>
                                 </h2>
                             </div>
-                            <form action="codeproductos.php" method="POST" class="row" enctype="multipart/form-data">
+                            <form action="codeproductosventa.php" method="POST" class="row" enctype="multipart/form-data">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($idproducto); ?>">
 
                                 <div class="col-12 col-md-12 form-floating mt-3 mb-3">
@@ -117,6 +117,41 @@ if (!$product) {
                                 <div class="col-12 col-md-12 form-floating mb-3">
                                     <textarea class="form-control" name="detalles" id="detalles" placeholder="Detalles" autocomplete="off" style="min-height: 250px;"><?php echo htmlspecialchars($product['detalles']); ?></textarea>
                                     <label for="detalles">Detalles</label>
+                                </div>
+
+                                <div class="col-12 col-md-2 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="stock" id="stock" value="<?php echo htmlspecialchars($product['stock']); ?>" placeholder="Stock" autocomplete="off" required>
+                                    <label for="stock">Stock</label>
+                                </div>
+
+                                <div class="col-12 col-md-10 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="sku" id="sku" value="<?php echo htmlspecialchars($product['sku']); ?>" placeholder="SKU" autocomplete="off" required>
+                                    <label for="sku">SKU</label>
+                                </div>
+
+                                <div class="col-12 col-md-3 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="stockminimo" id="stockminimo" value="<?php echo htmlspecialchars($product['stockminimo']); ?>" placeholder="Stock minimo" autocomplete="off" required>
+                                    <label for="stockminimo">Stock minimo</label>
+                                </div>
+
+                                <div class="col-12 col-md-6 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="preciounitario" id="preciounitario" value="<?php echo htmlspecialchars($product['preciounitario']); ?>" placeholder="Precio unitario" autocomplete="off" required>
+                                    <label for="preciounitario">Precio unitario</label>
+                                </div>
+
+                                <div class="col-12 col-md-3 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="preciomayoreo" id="preciomayoreo" value="<?php echo htmlspecialchars($product['preciomayoreo']); ?>" placeholder="Precio Mayoreo" autocomplete="off" required>
+                                    <label for="preciomayoreo">Precio mayoreo</label>
+                                </div>
+
+                                <div class="col-12 col-md-4 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="cantidadmayoreo" id="cantidadmayoreo" value="<?php echo htmlspecialchars($product['cantidadmayoreo']); ?>" placeholder="Cant.Mayoreo" autocomplete="off" required>
+                                    <label for="cantidadmayoreo">Cantidad minima para mayoreo</label>
+                                </div>
+
+                                <div class="col-12 col-md-8 form-floating mt-3 mb-3">
+                                    <input type="text" class="form-control" name="descuento" id="descuento" value="<?php echo htmlspecialchars($product['descuento']); ?>" placeholder="Descuento" autocomplete="off" required>
+                                    <label for="descuento">Descuento (pesos)</label>
                                 </div>
 
                                 <div class="col-5 p-3">
@@ -190,7 +225,7 @@ if (!$product) {
                             <div class="col-12 mt-3">
                                 <?php
                                 // Consulta para obtener los medios del producto
-                                $query_medios = "SELECT id, medio FROM medios WHERE idproducto = $idproducto";
+                                $query_medios = "SELECT id, medio FROM mediosventa WHERE idproducto = $idproducto";
                                 $result_medios = mysqli_query($con, $query_medios);
                                 $medios = [];
 
@@ -222,7 +257,7 @@ if (!$product) {
                                         }
 
                                         echo "
-            <form action='codeproductos.php' method='POST'>
+            <form action='codeproductosventa.php' method='POST'>
                 <input type='hidden' name='idproducto' value='$idproducto'>
                 <button type='submit' class='btn btn-danger btn-sm position-absolute top-0 end-0' name='deletemedio' value='$medio_id'>
                     <i class='bi bi-x'></i>

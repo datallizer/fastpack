@@ -1,16 +1,20 @@
 <?php
 session_start();
 require 'dbcon.php';
-$message = isset($_SESSION['message']) ? $_SESSION['message'] : '';
 
-if (!empty($message)) {
+$alert = isset($_SESSION['alert']) ? $_SESSION['alert'] : null;
+
+if (!empty($alert)) {
+  $title = isset($alert['title']) ? json_encode($alert['title']) : '"Notificación"';
+  $message = isset($alert['message']) ? json_encode($alert['message']) : '""';
+  $icon = isset($alert['icon']) ? json_encode($alert['icon']) : '"info"';
+
   echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
-                const message = " . json_encode($message) . ";
                 Swal.fire({
-                    //title: 'ADVERTENCIA',
-                    text: message,
-                    icon: 'warning',
+                    title: $title,
+                    " . (!empty($alert['message']) ? "text: $message," : "") . "
+                    icon: $icon,
                     confirmButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -19,7 +23,7 @@ if (!empty($message)) {
                 });
             });
         </script>";
-  unset($_SESSION['message']);
+  unset($_SESSION['alert']);
 }
 
 if (isset($_POST['username']) && isset($_POST['password'])) {
@@ -36,17 +40,58 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     if (password_verify($password, $hashed_password)) {
       $_SESSION['username'] = $username;
       $_SESSION['rol'] = $row['rol'];
-      $_SESSION['message'] = "Bienvenido";
+      $nombre = mb_strtoupper($row['nombre'], 'UTF-8');
+      $apellidopaterno = mb_strtoupper($row['apellidopaterno'], 'UTF-8');
+      $_SESSION['alert'] = [
+        'message' => 'Sesión iniciada correctamente',
+        'title' => "BIENVENIDO $nombre $apellidopaterno",
+        'icon' => 'success'
+      ];
       header("Location: dashboard.php");
       exit();
     } else {
-      $_SESSION['message'] = "La contraseña es incorrecta";
-      header("Location: index.php");
+      $_SESSION['alert'] = [
+        'title' => 'CONTRASEÑA INCORRECTA',
+        'icon' => 'error'
+      ];
+      header("Location: login.php");
       exit();
     }
   } else {
-    $_SESSION['message'] = "El correo ingresado no existe, realiza tu registro.";
-    header("Location: index.php");
+    $_SESSION['alert'] = [
+      'message' => 'El correo ingresado no existe o es incorrecto, intenta nuevamente',
+      'title' => 'USUARIO INCORRECTO',
+      'icon' => 'error'
+    ];
+    header("Location: login.php");
+    exit();
+  }
+}
+
+if (isset($_SESSION['username'])) {
+  $username = $_SESSION['username'];
+
+  $query = "SELECT * FROM usuarios WHERE username = '$username'";
+  $result = mysqli_query($con, $query);
+
+  if (mysqli_num_rows($result) > 0) {
+    $row = mysqli_fetch_assoc($result);
+    $nombre = mb_strtoupper($row['nombre'], 'UTF-8');
+    $apellidop = mb_strtoupper($row['apellidopaterno'], 'UTF-8');
+    $_SESSION['alert'] = [
+      'message' => 'Ya tienes una sesión activa',
+      'title' => "BIENVENIDO $nombre $apellidop",
+      'icon' => 'success'
+    ];
+    header('Location: dashboard.php');
+    exit();
+  } else {
+    $_SESSION['alert'] = [
+      'message' => 'Inicia sesión con un usuario existente',
+      'title' => 'USUARIO NO ENCONTRADO',
+      'icon' => 'error'
+    ];
+    header('Location: login.php');
     exit();
   }
 }

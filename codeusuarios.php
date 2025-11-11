@@ -65,7 +65,7 @@ if (isset($_POST['update'])) {
             exit(0);
         }
     } else {
-        $query = "UPDATE `usuarios` SET `nombre` = '$nombre', `apellidop` = '$apellidop', `apellidom` = '$apellidom', `codigo` = '$codigo', `rol` = '$rol', `estatus` = '$estatus' WHERE `usuarios`.`id` = '$id'";
+        $query = "UPDATE `usuarios` SET `nombre` = '$nombre', `apellidop` = '$apellidopaterno', `apellidom` = '$apellidom', `codigo` = '$codigo', `rol` = '$rol', `estatus` = '$estatus' WHERE `usuarios`.`id` = '$id'";
         $query_run = mysqli_query($con, $query);
 
         if ($query_run) {

@@ -150,7 +150,7 @@ header("Content-Type: text/html; charset=UTF-8");
           <?php
             }
           } else {
-            echo "<div style='min-height: 70vh; text-align: center;'><p>No se encontró ningún producto</p></div>";
+            echo "<div style='min-height: 70vh;display: flex;justify-content: center;align-items: center;text-align: center;'><p>No se encontró ningún producto</p></div>";
           }
           ?>
 

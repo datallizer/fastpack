@@ -26,6 +26,8 @@
           <a class="nav-item nav-link" href="https://fastpack.mx/#portfolio">INDUSTRIAS</a>
           <a class="nav-item nav-link" href="https://fastpack.mx/#contact">CONTACTO</a>
           <a class="nav-item nav-link" href="catalogosyexperiencias.php">CATÁLOGOS Y EXPERIENCIAS</a>
+          <a class="nav-item nav-link" href="tienda-en-linea.php">TIENDA EN LÍNEA</a>
+          <a class="nav-item nav-link" href="carrito-de-compras.php"><i class="bi bi-cart2"></i></a>
         </div>
       </div>
     </div>
