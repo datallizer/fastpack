@@ -158,6 +158,12 @@ pre {
   object-fit: cover;
 }
 
+.slickimg img {
+  height: 250px !important;
+  width: 100%;
+  object-fit: cover;
+}
+
 .fichaTec {
   width: 200px;
   display: block;

@@ -23,12 +23,23 @@ if (isset($_POST['delete'])) {
         $delete_query_run = mysqli_query($con, $delete_query);
 
         if ($delete_query_run) {
-            $_SESSION['message'] = "PDF eliminado exitosamente";
+            $_SESSION['alert'] = [
+                'message' => 'PDF eliminado exitosamente',
+                'title' => 'ELIMINADO',
+                'icon' => 'success'
+            ];
         } else {
-            $_SESSION['message'] = "Error al eliminar el PDF de la base de datos, contacte a soporte";
+            $_SESSION['alert'] = [
+                'message' => 'No se pudo eliminar el PDF de la base de datos, contacte a soporte',
+                'title' => 'ERROR',
+                'icon' => 'error'
+            ];
         }
-    } else {
-        $_SESSION['message'] = "El registro no existe o ya fue eliminado";
+    } else {$_SESSION['alert'] = [
+                'message' => 'El registro no existe o ya fue eliminado',
+                'title' => 'SIN REGISTRO',
+                'icon' => 'question'
+            ];
     }
 
     header("Location: miscatalogos.php");
@@ -41,24 +52,23 @@ if (isset($_POST['update'])) {
     $nombre = mysqli_real_escape_string($con, $_POST['nombre']);
     $estatus = mysqli_real_escape_string($con, $_POST['estatus']);
 
-        $query = "UPDATE `catalogos` SET `nombre` = '$nombre', `estatus` = '$estatus' WHERE `catalogos`.`id` = '$id'";
-        $query_run = mysqli_query($con, $query);
+    $query = "UPDATE `catalogos` SET `nombre` = '$nombre', `estatus` = '$estatus' WHERE `catalogos`.`id` = '$id'";
+    $query_run = mysqli_query($con, $query);
 
-        if ($query_run) {
-            $_SESSION['message'] = "PDF editado exitosamente";
-            header("Location: miscatalogos.php");
-            exit(0);
-        } else {
-            $_SESSION['message'] = "Error al editar el PDF, contacte a soporte";
-            header("Location: miscatalogos.php");
-            exit(0);
-        }
-    
+    if ($query_run) {
+        $_SESSION['message'] = "PDF editado exitosamente";
+        header("Location: miscatalogos.php");
+        exit(0);
+    } else {
+        $_SESSION['message'] = "Error al editar el PDF, contacte a soporte";
+        header("Location: miscatalogos.php");
+        exit(0);
+    }
 }
 
 if (isset($_POST['save'])) {
     $nombre = mysqli_real_escape_string($con, $_POST['nombre']);
-    
+
     // Verificar si se ha subido un archivo
     if (isset($_FILES['medio']) && $_FILES['medio']['error'] === UPLOAD_ERR_OK) {
         // Insertar primero el registro sin el campo del video
@@ -68,7 +78,7 @@ if (isset($_POST['save'])) {
         if ($query_run) {
             // Obtener el ID del último registro insertado
             $id = mysqli_insert_id($con);
-            
+
             // Crear la carpeta 'videos' si no existe
             if (!is_dir('catalogos')) {
                 mkdir('catalogos', 0777, true);

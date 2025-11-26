@@ -1,60 +1,152 @@
-$(document).ready(function(){
+$(document).ready(function () {
 
-    // Función para filtrar productos
-    function filterProducts(){
+    //-------------------------------------------------------------
+    // 1. AUTO-SELECT basándose en los parámetros de la URL
+    //-------------------------------------------------------------
+    const params = new URLSearchParams(window.location.search);
+    const urlCategory = params.get("category");
+    const urlSubcategory = params.get("subcategory");
+    const urlIndustry = params.get("industry");
+
+    // Función para convertir texto a slug sin eliminar acentos
+    function toSlug(text) {
+        return text
+            .toLowerCase()
+            .replace(/\s+/g, "-"); // espacios → guiones
+    }
+
+    // Autoselect categorías
+    if (urlCategory) {
+        $(".category_item").each(function () {
+            const value = $(this).val();
+            if (toSlug(value) === urlCategory) {
+                $(this).prop("checked", true);
+            }
+        });
+    }
+
+    // Autoselect subcategorías
+    if (urlSubcategory) {
+        $(".subcategory_item").each(function () {
+            const value = $(this).val();
+            if (toSlug(value) === urlSubcategory) {
+                $(this).prop("checked", true);
+            }
+        });
+    }
+
+    // Autoselect industrias
+    if (urlIndustry) {
+        $(".industry_item").each(function () {
+            const value = $(this).val();
+            if (toSlug(value) === urlIndustry) {
+                $(this).prop("checked", true);
+            }
+        });
+    }
+
+    //-------------------------------------------------------------
+    // 2. FUNCIÓN DE FILTRADO YA EXISTENTE
+    //-------------------------------------------------------------
+    function filterProducts() {
         var selectedCategories = [];
+        var selectedSubcategories = [];
         var selectedIndustries = [];
 
-        // Recolectar las categorías seleccionadas
-        $('.category_item:checked').each(function(){
+        // Recolectar categorías seleccionadas
+        $('.category_item:checked').each(function () {
             selectedCategories.push($(this).val());
         });
 
-        // Recolectar las industrias seleccionadas
-        $('.industry_item:checked').each(function(){
+        // Recolectar subcategorías seleccionadas
+        $('.subcategory_item:checked').each(function () {
+            selectedSubcategories.push($(this).val());
+        });
+
+        // Recolectar industrias seleccionadas
+        $('.industry_item:checked').each(function () {
             selectedIndustries.push($(this).val());
         });
 
-        // Si no hay categorías o industrias seleccionadas, mostrar todos los productos
-        if((selectedCategories.length === 0 || selectedCategories.includes('all')) && 
-           (selectedIndustries.length === 0 || selectedIndustries.includes('all'))) {
+        // Si se selecciona "Todo" o no hay filtros seleccionados, mostrar todo
+        if ($('.all_item').is(':checked') ||
+            (selectedCategories.length === 0 &&
+             selectedSubcategories.length === 0 &&
+             selectedIndustries.length === 0)) {
+
             $('.product-item').show().css('transform', 'scale(1)');
-        } else {
-            // Ocultar todos los productos primero
-            $('.product-item').hide().css('transform', 'scale(0)');
-            
-            // Mostrar productos que coincidan con las categorías e industrias seleccionadas
-            $('.product-item').each(function(){
-                var productCategories = $(this).attr('category').split(', ');
-                var productIndustries = $(this).attr('industry').split(', ');
-
-                var matchCategory = selectedCategories.length === 0 || selectedCategories.includes('all') || productCategories.some(category => selectedCategories.includes(category));
-                var matchIndustry = selectedIndustries.length === 0 || selectedIndustries.includes('all') || productIndustries.some(industry => selectedIndustries.includes(industry));
-
-                if(matchCategory && matchIndustry) {
-                    $(this).show().css('transform', 'scale(1)');
-                }
-            });
+            return;
         }
+
+        // Ocultar todo
+        $('.product-item').hide().css('transform', 'scale(0)');
+
+        // Mostrar los productos que cumplen los filtros
+        $('.product-item').each(function () {
+
+            var productCategories = ($(this).attr('category') || "").split(', ');
+            var productSubcategories = ($(this).attr('subcategory') || "").split(', ');
+            var productIndustries = ($(this).attr('industry') || "").split(', ');
+
+            var matchCategory =
+                selectedCategories.length === 0 ||
+                productCategories.some(cat => selectedCategories.includes(cat));
+
+            var matchSubcategory =
+                selectedSubcategories.length === 0 ||
+                productSubcategories.some(sub => selectedSubcategories.includes(sub));
+
+            var matchIndustry =
+                selectedIndustries.length === 0 ||
+                productIndustries.some(ind => selectedIndustries.includes(ind));
+
+            if (matchCategory && matchSubcategory && matchIndustry) {
+                $(this).show().css('transform', 'scale(1)');
+            }
+        });
     }
 
-    // Evento cuando un checkbox de categoría cambia de estado
-    $('.category_item').on('change', function(){
-        // Si "Todo" es seleccionado, desmarcar otros checkboxes de categoría e industria
-        if($(this).val() === 'all' && $(this).is(':checked')){
-            $('.category_item, .industry_item').prop('checked', false);
-            $(this).prop('checked', true);
-        } else {
-            $('.category_item[value="all"]').prop('checked', false);
+    //-------------------------------------------------------------
+    // 3. EVENTOS DE CHECKBOXES
+    //-------------------------------------------------------------
+
+    // Checkbox "Todo"
+    $('.all_item').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('.category_item, .subcategory_item, .industry_item').prop('checked', false);
         }
         filterProducts();
     });
 
-    // Evento cuando un checkbox de industria cambia de estado
-    $('.industry_item').on('change', function(){
-        // Desmarcar "Todo" si se selecciona alguna industria
-        $('.category_item[value="all"]').prop('checked', false);
+    // Categorías
+    $('.category_item').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('.all_item').prop('checked', false);
+        }
         filterProducts();
     });
+
+    // Subcategorías
+    $('.subcategory_item').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('.all_item').prop('checked', false);
+        }
+        filterProducts();
+    });
+
+    // Industrias
+    $('.industry_item').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('.all_item').prop('checked', false);
+        }
+        filterProducts();
+    });
+
+    //-------------------------------------------------------------
+    // 4. Filtrar inmediatamente si llegó un parámetro URL
+    //-------------------------------------------------------------
+    if (urlCategory || urlSubcategory || urlIndustry) {
+        filterProducts();
+    }
 
 });

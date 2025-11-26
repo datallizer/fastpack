@@ -4,6 +4,12 @@ require 'dbcon.php';
 
 header("Content-Type: text/html; charset=UTF-8");
 
+$consultaEnvio = $con->query("SELECT valoruno, valordos FROM configuraciones WHERE nombre='Envio' LIMIT 1");
+$env = $consultaEnvio->fetch_assoc();
+
+$envioMinimo = $env['valoruno']; // Mínimo para envío gratis
+$envioCosto = $env['valordos'];  // Costo de envío
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,20 +49,34 @@ header("Content-Type: text/html; charset=UTF-8");
                 </table>
                 <p>Subtotal: <span id="subtotal">$ 0.00</span></p>
                 <p>Descuento: <span id="descuento">$ 0.00</span></p>
-                <p>Cupón <span id="descuento">$ 0.00</span></p>
+                <p>Cupón: <span id="cupon">$ 0.00</span></p>
+                <p id="enviop">Costo de envío: <span id="envio">$ 0.00</span></p>
                 <p>Total a pagar: <b><span id="totalPagar">$ 0.00</span></b></p>
-                <div class="mt-5">Tengo un cupón: <form class="d-flex mt-1" action="">
-                        <input class="form-control ms-2" type="text">
-                        <button class="btn btn-primary" disabled>Canjear</button>
-                    </form>
-                </div>
-                <div class="p-3 mt-3" style="background-color: #25456c2d;border:2px solid #25456c66;border-radius:10px">
-                    <p class="text-dark" style="margin:0;"><small><i style="background-color: #25456c3b;color: #393939ff;padding:5px 5px 5px 10px;border-radius:50px;" class="bi bi-truck"></i> Para envíos gratis se requiere un minimo de compra de $2000</small></p>
-                </div>
+
+
                 <!-- <button class="btn btn-secondary w-100 mt-5" disabled>Guardar carrito de compras</button> -->
-                <button class="btn btn-danger w-100 mt-4" disabled>Pagar</button>
+                <button class="btn btn-danger w-100 mt-4">Pagar</button>
+
+                <div class="mt-3">Tengo un cupón:
+                    <div class="d-flex mt-1">
+                        <input class="form-control ms-2" type="text" id="codigoCupon">
+                        <button style="border-radius: 0px 10px 10px 0px;"
+                            class="btn btn-secondary" id="canje">Canjear</button>
+                    </div>
+                </div>
+
+
+                <div class="p-3 mt-3" id="envioCosto" style="background-color: #25456c2d;border:2px solid #25456c66;border-radius:10px">
+                    <p class="text-dark" style="margin:0;"><small><i style="background-color: #25456c3b;color: #393939ff;padding:5px 5px 5px 10px;border-radius:50px;" class="bi bi-truck"></i> Para <b>envíos gratis</b> se requiere un <b>minimo de compra</b> de <b>$<?= number_format($envioMinimo) ?></b>.</small></p>
+                </div>
+                <div class="p-3 mt-3" id="envioGratis" style="background-color: #256c2a2d;border:2px solid #336c2566;border-radius:10px">
+                    <p class="text-dark" style="margin:0;"><small><i style="background-color: #256c273b;color: #393939ff;padding:5px 5px 5px 10px;border-radius:50px;" class="bi bi-truck"></i> El <b>envío</b> de tus productos es <b>gratis</b>.</small></p>
+                </div>
+                <div class="p-3 mt-3" style="background-color: #ebbc5d78;border:2px solid #b5790066;border-radius:10px">
+                    <p class="text-dark" style="margin:0;"><small><i style="background-color: #b692133b;color: #393939ff;padding:5px 5px 5px 10px;border-radius:50px;" class="bi bi-cash-coin"></i> El <b>pago es procesado</b> mediante <b>Openpay por BBVA</b> con maximos estandares de <b>seguridad y tecnología antifraude</b>, dentro de nuestro sitio web nunca te solicitaremos información bancaria.</small></p>
+                </div>
             </div>
-            <div class=" col-12 col-md-3 card-contain">
+            <div class=" col-12 col-md-4 card-contain">
                 <div class="row justify-content-start" id="productList">
                     <p>Cargando productos del carrito...</p>
                 </div>
@@ -71,6 +91,12 @@ header("Content-Type: text/html; charset=UTF-8");
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/filtros.js"></script>
     <script>
+        let cuponDescuento = 0;
+        let bloqueandoCupon = false;
+        let alertaMostrada = false;
+        const ENVIO_MINIMO = <?= $envioMinimo ?>;
+        const ENVIO_COSTO = <?= $envioCosto ?>;
+
         function getCart() {
             return JSON.parse(localStorage.getItem("fastpackCart")) || [];
         }
@@ -129,14 +155,13 @@ header("Content-Type: text/html; charset=UTF-8");
             if (qtySpan) qtySpan.textContent = item ? item.cantidad : 0;
         }
 
-        // Actualiza totales
         function updateTotals() {
             const cart = getCart();
             let totalProductos = cart.length;
             let subtotal = 0;
             let totalDescuento = 0;
+            let costoEnvioAplicado = 0;
 
-            // Leer precios de las cards ya cargadas
             cart.forEach(item => {
                 const precio = parseFloat(document.getElementById(`price-${item.id}`)?.dataset.precio || 0);
                 const descuento = parseFloat(document.getElementById(`price-${item.id}`)?.dataset.descuento || 0);
@@ -144,17 +169,39 @@ header("Content-Type: text/html; charset=UTF-8");
                 totalDescuento += descuento * item.cantidad;
             });
 
-            let totalFinal = subtotal - totalDescuento;
+            if (subtotal - totalDescuento - cuponDescuento < ENVIO_MINIMO) {
+                // SE COBRA ENVÍO
+                costoEnvioAplicado = ENVIO_COSTO;
+
+                document.getElementById("envioCosto").style.display = "block";
+                document.getElementById("envioGratis").style.display = "none";
+                document.getElementById("enviop").style.display = "block";
+                document.getElementById("envio").style.display = "inline";
+
+                document.getElementById("envio").textContent = `$ ${ENVIO_COSTO.toFixed(2)}`;
+            } else {
+                // ES GRATIS
+                costoEnvioAplicado = 0;
+
+                document.getElementById("envioCosto").style.display = "none";
+                document.getElementById("envioGratis").style.display = "block";
+                document.getElementById("enviop").style.display = "none";
+                document.getElementById("envio").style.display = "none";
+            }
+
+            // ⬅ Aquí ya se integra el cupón guardado globalmente
+            let totalFinal = subtotal - totalDescuento - cuponDescuento + costoEnvioAplicado;
+
 
             document.getElementById("totalProductos").textContent = totalProductos;
             document.getElementById("subtotal").textContent = `$ ${subtotal.toFixed(2)}`;
             document.getElementById("descuento").textContent = `$ ${totalDescuento.toFixed(2)}`;
+            document.getElementById("cupon").textContent = `$ ${cuponDescuento.toFixed(2)}`;
             document.getElementById("totalPagar").textContent = `$ ${totalFinal.toFixed(2)}`;
 
-            // Tabla de productos con cantidades
+            // Tabla
             let detalle = "";
-            const productList = getCart();
-            productList.forEach(item => {
+            cart.forEach(item => {
                 const precio = parseFloat(document.getElementById(`price-${item.id}`)?.dataset.precio || 0);
                 const titulo = document.getElementById(`title-${item.id}`)?.textContent || "";
                 detalle += `
@@ -165,7 +212,11 @@ header("Content-Type: text/html; charset=UTF-8");
         </tr>`;
             });
             document.getElementById("detalleCompra").innerHTML = detalle;
+            if (!bloqueandoCupon && cuponDescuento > 0) {
+                reevaluarCupon();
+            }
         }
+
 
         // Cargar productos del carrito
         document.addEventListener("DOMContentLoaded", () => {
@@ -175,7 +226,8 @@ header("Content-Type: text/html; charset=UTF-8");
             if (ids.length === 0) {
                 document.getElementById("productList").innerHTML = `
         <div style='min-height: 70vh; display: flex; justify-content: center; align-items: center; text-align: center;'>
-            <p>No tienes productos en el carrito</p>
+            <div><p>No tienes productos en el carrito</p>
+            <a href='tienda-en-linea.php' class='btn btn-secondary'>Tienda en línea</a></div>
         </div>`;
                 updateTotals();
                 return;
@@ -227,7 +279,7 @@ header("Content-Type: text/html; charset=UTF-8");
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <h5 id="title-${prod.productoID}" class="card-title" style="text-transform: uppercase; font-weight: 600;">
+                            <h5 id="title-${prod.productoID}" class="card-title" style="font-size:15px;text-transform: uppercase; font-weight: 600;">
                                 ${prod.titulo}
                             </h5>
                             <div class="ms-2 align-items-center">
@@ -254,6 +306,103 @@ header("Content-Type: text/html; charset=UTF-8");
                 updateTotals();
             }, "json");
         });
+
+        $("#canje").on("click", function(e) {
+            e.preventDefault();
+
+            let codigo = $("#codigoCupon").val().trim().toUpperCase();
+            let total = parseFloat($("#subtotal").text().replace("$", "").trim());
+            let descuento = parseFloat($("#descuento").text().replace("$", "").trim());
+            let subtotal = total - descuento;
+
+            if (codigo === "") {
+                Swal.fire("Código vacío", "Escribe un cupón para continuar", "warning");
+                return;
+            }
+
+            $.ajax({
+                url: "validar_cupon.php",
+                type: "POST",
+                data: {
+                    codigo,
+                    subtotal
+                },
+                dataType: "json",
+                success: function(res) {
+
+                    if (!res.ok) {
+                        Swal.fire("Cupón no válido", res.msg, "error");
+                        return;
+                    }
+
+                    // Guardar el descuento global
+                    cuponDescuento = res.descuento;
+
+                    Swal.fire("¡Cupón aplicado!",
+                        `Se aplicó un descuento de $${cuponDescuento.toFixed(2)}.`,
+                        "success"
+                    );
+
+                    // Recalcular todo correctamente
+                    updateTotals();
+                }
+            });
+        });
+
+        function reevaluarCupon() {
+            if (bloqueandoCupon) return;
+            bloqueandoCupon = true;
+
+            let codigo = $("#codigoCupon").val().trim().toUpperCase();
+            if (codigo === "") {
+                bloqueandoCupon = false;
+                return;
+            }
+
+            let total = parseFloat($("#subtotal").text().replace("$", "").trim());
+            let descuento = parseFloat($("#descuento").text().replace("$", "").trim());
+            let subtotal = total - descuento;
+
+            $.ajax({
+                url: "validar_cupon.php",
+                type: "POST",
+                data: {
+                    codigo,
+                    subtotal
+                },
+                dataType: "json",
+                success: function(res) {
+
+                    if (!res.ok) {
+                        if (alertaMostrada) return; // evita alert infinito
+                        alertaMostrada = true;
+
+                        cuponDescuento = 0;
+                        $("#cupon").text("$ 0.00");
+
+                        Swal.fire("Cupón inválido", res.msg, "warning").then(() => {
+                            cuponDescuento = 0;
+                            $("#cupon").text("$ 0.00");
+
+                            // Liberar bloqueo sólo después del update
+                            setTimeout(() => {
+                                alertaMostrada = false;
+                                bloqueandoCupon = false;
+
+                                // No volver a reevaluar porque el cupón ya se eliminó
+                                updateTotals();
+                            }, 80);
+                        });
+
+
+                    } else {
+                        cuponDescuento = res.descuento;
+                        bloqueandoCupon = false;
+                        updateTotals();
+                    }
+                }
+            });
+        }
     </script>
 </body>
 

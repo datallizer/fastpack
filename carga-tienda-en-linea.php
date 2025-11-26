@@ -59,7 +59,7 @@ if (isset($_SESSION['username'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/x-icon" href="images/ics.ico">
-    <title>Productos | Fastpack</title>
+    <title>Carga tienda en línea | Fastpack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
@@ -179,7 +179,27 @@ if (isset($_SESSION['username'])) {
                             <label for="detalles">Detalles</label>
                         </div>
 
-                        <div class="col-6 mb-3">
+                        <div class="col-12 col-md-4 mb-3">
+                            <label for="industria">Industrias</label>
+                            <div id="industria">
+                                <?php
+                                $query = "SELECT * FROM industrias";
+                                $result = mysqli_query($con, $query);
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($industria = mysqli_fetch_assoc($result)) {
+                                        $opcion = $industria['industria'];
+                                        echo "
+                <div class='form-check'>
+                    <input class='form-check-input' type='checkbox' name='industria[]' value='$opcion' id='industria_$opcion'>
+                    <label class='form-check-label' for='industria_$opcion'>$opcion</label>
+                </div>";
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 mb-3">
                             <label for="categoria">Categorías</label>
                             <div id="categoria">
                                 <?php
@@ -199,19 +219,19 @@ if (isset($_SESSION['username'])) {
                             </div>
                         </div>
 
-                        <div class="col-6 mb-3">
-                            <label for="industria">Industrias</label>
-                            <div id="industria">
+                        <div class="col-12 col-md-4 mb-3">
+                            <label for="subcategoria">Subcategorías</label>
+                            <div id="subcategoria">
                                 <?php
-                                $query = "SELECT * FROM industrias";
+                                $query = "SELECT * FROM subcategorias";
                                 $result = mysqli_query($con, $query);
                                 if (mysqli_num_rows($result) > 0) {
-                                    while ($industria = mysqli_fetch_assoc($result)) {
-                                        $opcion = $industria['industria'];
+                                    while ($subcategoria = mysqli_fetch_assoc($result)) {
+                                        $opcion = $subcategoria['subcategoria'];
                                         echo "
                 <div class='form-check'>
-                    <input class='form-check-input' type='checkbox' name='industria[]' value='$opcion' id='industria_$opcion'>
-                    <label class='form-check-label' for='industria_$opcion'>$opcion</label>
+                    <input class='form-check-input' type='checkbox' name='categoria[]' value='$opcion' id='categoria_$opcion'>
+                    <label class='form-check-label' for='categoria_$opcion'>$opcion</label>
                 </div>";
                                     }
                                 }
@@ -256,7 +276,7 @@ if (isset($_SESSION['username'])) {
 
                         <div class="col-12 mb-3">
                             <label for="medio">Medios</label>
-                            <input type="file" name="medios[]" id="medio" class="form-control" multiple>
+                            <input type="file" name="medios[]" id="medio" class="form-control" accept=".jpg, .jpeg, .png" multiple>
                         </div>
                 </div>
                 <div class="modal-footer">
